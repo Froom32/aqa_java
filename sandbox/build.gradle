@@ -1,3 +1,3 @@
 apply plugin: 'java'
 apply plugin: 'application'
-mainClassName = "MyFirstProg"
+mainClassName = "froom.my_java_code.MyFirstProgram"
