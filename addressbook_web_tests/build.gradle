@@ -1,6 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'application'
-mainClassName = "froom.my_java_code.Rectangle"
 
 repositories {
     mavenCentral()
@@ -8,6 +6,7 @@ repositories {
 
 dependencies {
     implementation 'org.testng:testng:7.3.0'
+    implementation 'org.seleniumhq.selenium:selenium-java:4.0.0-alpha-7'
 }
 
 test {
