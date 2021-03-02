@@ -12,4 +12,12 @@ public class NavigationHelper extends HelperBase {
   public void goToGroupPage() {
     click(By.xpath("//*[@id='nav']/ul/li[3]/a"));
   }
+
+  public void goToAddNewContact() {
+    click(By.xpath("//*[@id='nav']/ul/li[2]/a"));
+  }
+
+  public void goHome() {
+    click(By.xpath("//*[@id='nav']/ul/li[1]/a"));
+  }
 }
