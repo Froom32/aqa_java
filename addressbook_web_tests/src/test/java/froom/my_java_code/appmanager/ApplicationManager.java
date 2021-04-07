@@ -2,20 +2,29 @@ package froom.my_java_code.appmanager;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.remote.BrowserType;
 
 public class ApplicationManager {
   WebDriver driver;
 
-  private NavigationHelper navigationHelper;
+  public ApplicationManager(String browser) {
+    this.browser = browser;
+  }
+
   private GroupHelper groupHelper;
   private SessionHelper sessionHelper;
   private ContactHelper contactHelper;
+  private String browser;
 
   public void init() {
-    driver = new ChromeDriver();
+    if (browser.equals(BrowserType.CHROME)) {
+      driver = new ChromeDriver();
+    } else if (browser.equals(BrowserType.EDGE)) {
+      driver = new EdgeDriver();
+    }
     driver.manage().window().maximize();
     groupHelper = new GroupHelper(driver);
-    navigationHelper = new NavigationHelper(driver);
     sessionHelper = new SessionHelper(driver);
     contactHelper = new ContactHelper(driver);
     driver.get("http://localhost/addressbook/");
@@ -28,10 +37,6 @@ public class ApplicationManager {
 
   public GroupHelper getGroupHelper() {
     return groupHelper;
-  }
-
-  public NavigationHelper getNavigationHelper() {
-    return navigationHelper;
   }
 
   public SessionHelper getSessionHelper() {
