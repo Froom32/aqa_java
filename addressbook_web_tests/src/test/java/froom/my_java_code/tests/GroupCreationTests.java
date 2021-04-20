@@ -1,28 +1,35 @@
 package froom.my_java_code.tests;
 
 import froom.my_java_code.models.GroupData;
-import org.testng.Assert;
+import froom.my_java_code.models.Groups;
 import org.testng.annotations.Test;
 
-import java.util.Comparator;
-import java.util.List;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
 
 public class GroupCreationTests extends TestBase {
 
   @Test
   public void testGroupCreation() {
     app.getGroupHelper().goToGroupPage();
-    List<GroupData> before = app.getGroupHelper().getGroupList();
-    GroupData groupData = new GroupData(0,"Bears", "the best group ever", "really the best");
-    app.getGroupHelper().createGroup(groupData);
-    List<GroupData> after = app.getGroupHelper().getGroupList();
-    Assert.assertEquals(after.size(), before.size() + 1);
+    Groups before = app.getGroupHelper().getGroupSet();
+    GroupData group = new GroupData().withName("Bears").withHeader("the best group ever").withFooter("really the best");
+    app.getGroupHelper().createGroup(group);
+    assertThat(app.getGroupHelper().getGroupCount(), equalTo(before.size() + 1));
+    Groups after = app.getGroupHelper().getGroupSet();
+    assertThat(after, equalTo(
+            before.withAdded(group.withID(after.stream().mapToInt(GroupData::getGroupID).max().getAsInt()))));
+  }
 
-    groupData.setGroupID(after.stream().max(Comparator.comparingInt(GroupData::getGroupID)).get().getGroupID());
-    before.add(groupData);
-    before.sort(Comparator.comparing(GroupData::getGroupID));
-    after.sort(Comparator.comparing(GroupData::getGroupID));
-    Assert.assertEquals(before, after);
+  @Test
+  public void testGroupCreationNegative() {
+    app.getGroupHelper().goToGroupPage();
+    Groups before = app.getGroupHelper().getGroupSet();
+    GroupData group = new GroupData().withName("Bears'").withHeader("the best group ever").withFooter("really the best");
+    app.getGroupHelper().createGroup(group);
+    assertThat(app.getGroupHelper().getGroupCount(), equalTo(before.size()));
+    Groups after = app.getGroupHelper().getGroupSet();
+    assertThat(after, equalTo(before));
   }
 
 }

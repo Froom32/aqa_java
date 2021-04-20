@@ -3,17 +3,10 @@ package froom.my_java_code.models;
 import java.util.Objects;
 
 public class GroupData {
-  private final String groupName;
-  private final String groupHeader;
-  private final String groupFooter;
-  private int groupID;
-
-  public GroupData(int groupID, String groupName, String groupHeader, String groupFooter) {
-    this.groupID = groupID;
-    this.groupName = groupName;
-    this.groupHeader = groupHeader;
-    this.groupFooter = groupFooter;
-  }
+  private String groupName;
+  private String groupHeader;
+  private String groupFooter;
+  private int groupID = 0;
 
   public int getGroupID() {
     return groupID;
@@ -31,8 +24,24 @@ public class GroupData {
     return groupFooter;
   }
 
-  public void setGroupID(int groupID) {
+  public GroupData withID(int groupID) {
     this.groupID = groupID;
+    return this;
+  }
+
+  public GroupData withName(String groupName) {
+    this.groupName = groupName;
+    return this;
+  }
+
+  public GroupData withHeader(String groupHeader) {
+    this.groupHeader = groupHeader;
+    return this;
+  }
+
+  public GroupData withFooter(String groupFooter) {
+    this.groupFooter = groupFooter;
+    return this;
   }
 
   @Override

@@ -2,29 +2,36 @@ package froom.my_java_code.tests;
 
 import froom.my_java_code.models.ContactData;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 
 public class ContactModificationTests extends TestBase {
 
-  @Test
-  public void testContactCreation() {
+  @BeforeMethod
+  public void preconditionContactDeletion() {
     app.getContactHelper().goToHomePage();
-    if (! app.getContactHelper().isContactPresent()) {
-      app.getContactHelper().createContact(new ContactData("Mike Bilyk", "prospect Oleksandrovskiy, h.111, r.21", "+380952492290", "bilikmike@gmail.com", "Wolves"), true);
+    if (app.getContactHelper().getContactSet().size() == 0) {
+      app.getContactHelper().createContact(
+              new ContactData().withName("Mike Bilyk").withAddress("prospect Oleksandrovskiy, h.111, r.21")
+                      .withMobilePhone("+380952492290").withEmail("bilikmike@gmail.com").withGroup("Wolves"));
     }
-    List<ContactData> before = app.getContactHelper().getContactList();
-    app.getContactHelper().initContactModification(before.size() - 1);
-    ContactData contactData = new ContactData("Dinsova", "Konstantinovskaya street, h.24, r.2", "+380445489122", "random@gmail.com", null);
-    app.getContactHelper().fillContactForm(contactData, false);
-    app.getContactHelper().submitContactModification();
-    app.getContactHelper().goToHomePage();
-    List<ContactData> after = app.getContactHelper().getContactList();
+  }
 
-    before.remove(before.size() - 1);
-    before.add(contactData);
-    Assert.assertEquals(new HashSet<Object>(before), new HashSet<Object>(after));
+  @Test(enabled = true)
+  public void testContactCreation() {
+    Set<ContactData> before = app.getContactHelper().getContactSet();
+    ContactData modifiedContact = before.iterator().next();
+    ContactData contact =
+            new ContactData().withId(modifiedContact.getId()).withName("Dinsova").withAddress("Konstantinovskaya street, h.24, r.2")
+                    .withMobilePhone("+380445489122").withEmail("random@gmail.com");
+    app.getContactHelper().modifyContact(contact);
+    Set<ContactData> after = app.getContactHelper().getContactSet();
+
+    before.remove(modifiedContact);
+    before.add(contact);
+    Assert.assertEquals(before, after);
   }
 }

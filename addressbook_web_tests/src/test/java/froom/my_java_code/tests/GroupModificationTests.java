@@ -1,32 +1,32 @@
 package froom.my_java_code.tests;
 
 import froom.my_java_code.models.GroupData;
-import org.testng.Assert;
+import froom.my_java_code.models.Groups;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.util.HashSet;
-import java.util.List;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
 
 public class GroupModificationTests extends TestBase {
 
-  @Test
-  public void testGroupModification() {
+  @BeforeMethod
+  private void preconditionGroupCreation() {
     app.getGroupHelper().goToGroupPage();
-    if (! app.getGroupHelper().isGroupPresent()) {
-      app.getGroupHelper().createGroup(new GroupData(0,"Wolves", "the best group ever", "really the best"));
+    if (app.getGroupHelper().getGroupSet().size() == 0) {
+      app.getGroupHelper().createGroup(new GroupData().withName("Bears").withHeader("the best group ever").withFooter("really the best"));
     }
-    List<GroupData> before = app.getGroupHelper().getGroupList();
-    app.getGroupHelper().selectGroup(before.size() - 1);
-    app.getGroupHelper().initGroupModification();
-    GroupData groupData = new GroupData(before.get(before.size() - 1).getGroupID(),"Foxes", "the worst group ever", "really the worst");
-    app.getGroupHelper().fillGroupForm(groupData);
-    app.getGroupHelper().submitGroupModification();
-    app.getGroupHelper().returnToGroupPage();
-    List<GroupData> after = app.getGroupHelper().getGroupList();
+  }
 
-    before.remove(before.size() - 1);
-    before.add(groupData);
-    Assert.assertEquals(new HashSet<Object>(before), new HashSet<Object>(after));
+  @Test(enabled = false)
+  public void testGroupModification() {
+    Groups before = app.getGroupHelper().getGroupSet();
+    GroupData modifiedGroup = before.iterator().next();
+    GroupData group =
+            new GroupData().withID(modifiedGroup.getGroupID()).withName("Foxes").withHeader("the worst group ever").withFooter("really the worst");
+    app.getGroupHelper().modifyGroup(group);
+    Groups after = app.getGroupHelper().getGroupSet();
+    assertThat(after, equalTo(before.withOut(modifiedGroup).withAdded(group)));
   }
 
 }

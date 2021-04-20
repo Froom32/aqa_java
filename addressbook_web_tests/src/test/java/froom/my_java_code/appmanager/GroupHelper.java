@@ -1,11 +1,11 @@
 package froom.my_java_code.appmanager;
 
 import froom.my_java_code.models.GroupData;
+import froom.my_java_code.models.Groups;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class GroupHelper extends HelperBase {
@@ -15,7 +15,9 @@ public class GroupHelper extends HelperBase {
   }
 
   public void returnToGroupPage() {
-    click(By.xpath("//*[@id='content']/div/i/a"));
+    if (isElementPresent(By.xpath("//*[@id='content']/div/i/a"))) {
+      click(By.xpath("//*[@id='content']/div/i/a"));
+    } else goToGroupPage();
   }
 
   public void submitGroupCreation() {
@@ -36,8 +38,8 @@ public class GroupHelper extends HelperBase {
     click(By.name("delete"));
   }
 
-  public void selectGroup(int index) {
-    driver.findElements(By.name("selected[]")).get(index).click();
+  public void selectGroupByID(int id) {
+    driver.findElement(By.cssSelector("input[value = '" + id + "']")).click();
   }
 
   public void initGroupModification() {
@@ -48,31 +50,49 @@ public class GroupHelper extends HelperBase {
     click(By.name("submit"));
   }
 
-  public void createGroup(GroupData groupData) {
+  public void createGroup(GroupData group) {
     initGroupCreation();
-    fillGroupForm(groupData);
+    fillGroupForm(group);
     submitGroupCreation();
+    groupsCash = null;
     returnToGroupPage();
   }
 
-  public boolean isGroupPresent() {
-    return isElementPresent(By.name("selected[]"));
+  public void deleteGroup(GroupData group) {
+    selectGroupByID(group.getGroupID());
+    deleteSelectedGroups();
+    groupsCash = null;
+    returnToGroupPage();
+  }
+
+  public void modifyGroup(GroupData group) {
+    selectGroupByID(group.getGroupID());
+    initGroupModification();
+    fillGroupForm(group);
+    submitGroupModification();
+    groupsCash = null;
+    returnToGroupPage();
   }
 
   public int getGroupCount() {
     return driver.findElements(By.name("selected[]")).size();
   }
 
-  public List<GroupData> getGroupList() {
+  private Groups groupsCash = null;
+
+  public Groups getGroupSet() {
     List<WebElement> elements = driver.findElements(By.name("selected[]"));
-    List<GroupData> groups = new ArrayList<GroupData>();
+    if (groupsCash != null) {
+      return new Groups(groupsCash);
+    }
+    groupsCash = new Groups();
     for (WebElement element : elements) {
       String dirtyName = element.getAttribute("title");
       String name = dirtyName.substring(8, dirtyName.length() - 1);
       int id = Integer.parseInt(element.getAttribute("value"));
-      GroupData groupData = new GroupData(id, name, null, null);
-      groups.add(groupData);
+      GroupData groupData = new GroupData().withID(id).withName(name);
+      groupsCash.add(groupData);
     }
-    return groups;
+    return new Groups(groupsCash);
   }
 }

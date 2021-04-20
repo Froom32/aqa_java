@@ -4,18 +4,25 @@ import java.util.Objects;
 
 public class ContactData {
 
-  private final String name;
-  private final String address;
-  private final String mobilePhone;
-  private final String email;
-  private final String group;
+  private String name;
+  private String address;
+  private String homePhone;
+  private String mobilePhone;
+  private String workPhone;
+  private String email;
+  private String group;
+  private int id;
 
-  public ContactData(String name, String address, String mobilePhone, String email, String group) {
-    this.name = name;
-    this.address = address;
-    this.mobilePhone = mobilePhone;
-    this.email = email;
-    this.group = group;
+  public String getHomePhone() {
+    return homePhone;
+  }
+
+  public String getWorkPhone() {
+    return workPhone;
+  }
+
+  public int getId() {
+    return id;
   }
 
   public String getMobilePhone() {
@@ -38,14 +45,44 @@ public class ContactData {
     return group;
   }
 
-  @Override
-  public String toString() {
-    return "ContactData{" +
-            "name='" + name + '\'' +
-            ", address='" + address + '\'' +
-            ", mobilePhone='" + mobilePhone + '\'' +
-            ", email='" + email + '\'' +
-            '}';
+  public ContactData withId(int id) {
+    this.id = id;
+    return this;
+  }
+
+  public ContactData withName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public ContactData withAddress(String address) {
+    this.address = address;
+    return this;
+  }
+
+  public ContactData withHomePhone(String homePhone) {
+    this.homePhone = homePhone;
+    return this;
+  }
+
+  public ContactData withMobilePhone(String mobilePhone) {
+    this.mobilePhone = mobilePhone;
+    return this;
+  }
+
+  public ContactData withWorkPhone(String workPhone) {
+    this.workPhone = workPhone;
+    return this;
+  }
+
+  public ContactData withEmail(String email) {
+    this.email = email;
+    return this;
+  }
+
+  public ContactData withGroup(String group) {
+    this.group = group;
+    return this;
   }
 
   @Override
@@ -53,11 +90,23 @@ public class ContactData {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     ContactData that = (ContactData) o;
-    return Objects.equals(name, that.name) && Objects.equals(address, that.address) && Objects.equals(mobilePhone, that.mobilePhone) && Objects.equals(email, that.email);
+    return id == that.id && Objects.equals(name, that.name) && Objects.equals(address, that.address) && Objects.equals(mobilePhone, that.mobilePhone) && Objects.equals(email, that.email);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name, address, mobilePhone, email);
+    return Objects.hash(name, address, mobilePhone, email, id);
   }
+
+  @Override
+  public String toString() {
+    return "ContactData{" +
+            "name='" + name + '\'' +
+            ", address='" + address + '\'' +
+            ", mobilePhone='" + mobilePhone + '\'' +
+            ", email='" + email + '\'' +
+            ", id=" + id +
+            '}';
+  }
+
 }

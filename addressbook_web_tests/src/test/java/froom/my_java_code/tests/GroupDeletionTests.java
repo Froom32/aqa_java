@@ -1,28 +1,30 @@
 package froom.my_java_code.tests;
 
 import froom.my_java_code.models.GroupData;
-import org.testng.Assert;
+import froom.my_java_code.models.Groups;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.util.List;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.*;
 
 public class GroupDeletionTests extends TestBase {
 
-  @Test
-  public void testGroupDeletion() {
+  @BeforeMethod
+  private void preconditionGroupDeletion() {
     app.getGroupHelper().goToGroupPage();
-    if (! app.getGroupHelper().isGroupPresent()) {
-      app.getGroupHelper().createGroup(new GroupData(0,"Wolves", "the best group ever", "really the best"));
+    if (app.getGroupHelper().getGroupSet().size() == 0) {
+      app.getGroupHelper().createGroup(new GroupData().withName("Bears").withHeader("the best group ever").withFooter("really the best"));
     }
-    List<GroupData> before = app.getGroupHelper().getGroupList();
-    app.getGroupHelper().selectGroup(before.size() - 1);
-    app.getGroupHelper().deleteSelectedGroups();
-    app.getGroupHelper().returnToGroupPage();
-    List<GroupData> after = app.getGroupHelper().getGroupList();
-    Assert.assertEquals(after.size(), before.size() - 1);
-
-    before.remove(before.size() - 1);
-    Assert.assertEquals(before, after);
   }
 
+  @Test
+  public void testGroupDeletion() {
+    Groups before = app.getGroupHelper().getGroupSet();
+    GroupData group = before.iterator().next();
+    app.getGroupHelper().deleteGroup(group);
+    assertThat(app.getGroupHelper().getGroupCount(), equalTo(before.size() - 1));
+    Groups after = app.getGroupHelper().getGroupSet();
+    assertThat(after, equalTo(before.withOut(group)));
+  }
 }

@@ -2,10 +2,11 @@ package froom.my_java_code.appmanager;
 
 import froom.my_java_code.models.ContactData;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;;
+import org.openqa.selenium.WebDriver;
 import java.time.Duration;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
@@ -41,10 +42,6 @@ public class ContactHelper extends HelperBase {
     click(By.name("submit"));
   }
 
-  public void selectContact(int index) {
-    driver.findElements(By.name("selected[]")).get(index).click();
-  }
-
   public void initContactDeletion() {
     click(By.xpath("//*[@id='content']/form[2]/div[2]/input"));
   }
@@ -54,38 +51,67 @@ public class ContactHelper extends HelperBase {
     driver.switchTo().alert().accept();
   }
 
-  public void initContactModification(int index) {
-    WebElement webElement = driver.findElements(By.name("entry")).get(index);
-    webElement.findElement(By.cssSelector(":nth-child(8)")).click();
+  private void selectContactByID(int id) {
+    click(By.cssSelector(String.format("input[id='%s']", id)));
+  }
+
+  private void initContactModificationById(int id) {
+    click(By.xpath(String.format("//input[@id='%s']/../../td[8]/a", id)));
   }
 
   public void submitContactModification() {
     click(By.name("update"));
   }
 
-  public void createContact(ContactData contactData, boolean b) {
+  public void createContact(ContactData contactData) {
     goToAddNewContact();
     initContactCreation();
-    fillContactForm(contactData, b);
+    fillContactForm(contactData, true);
     submitContactCreation();
     goToHomePage();
   }
 
-  public boolean isContactPresent() {
-    return isElementPresent(By.name("selected[]"));
+  public void deleteContact(ContactData contact) {
+    selectContactByID(contact.getId());
+    initContactDeletion();
+    confirmAlert();
+    goToHomePage();
   }
 
-  public List<ContactData> getContactList() {
+  public void modifyContact(ContactData contact) {
+    initContactModificationById(contact.getId());
+    fillContactForm(contact, false);
+    submitContactModification();
+    goToHomePage();
+  }
+
+  public Set<ContactData> getContactSet() {
     List<WebElement> elements = driver.findElements(By.name("entry"));
-    List<ContactData> contacts = new ArrayList<ContactData>();
+    Set<ContactData> contacts = new HashSet<ContactData>();
     for (WebElement element : elements) {
-      String name = element.findElement(By.cssSelector(":nth-child(3)")).getText();
-      String address = element.findElement(By.cssSelector(":nth-child(4)")).getText();
-      String email = element.findElement(By.cssSelector(":nth-child(5) > a")).getText();
-      String phone = element.findElement(By.cssSelector(":nth-child(6)")).getText();
-      ContactData contactData = new ContactData(name, address, phone, email, null);
+      int id = Integer.parseInt(element.findElement(By.xpath("./td[1]/input")).getAttribute("id"));
+      String name = element.findElement(By.xpath("./td[3]")).getText();
+      String address = element.findElement(By.xpath("./td[4]")).getText();
+      String email = element.findElement(By.xpath("./td[5]/a")).getText();
+      String[] phones = element.findElement(By.xpath("./td[6]")).getText().split("\n");
+      ContactData contactData = new ContactData().withId(id).withName(name).withAddress(address).withEmail(email)
+              .withHomePhone(phones[0]).withMobilePhone(phones[1]).withWorkPhone(phones[2]);
       contacts.add(contactData);
     }
     return contacts;
+  }
+
+  public ContactData getContactDataFromModifyForm(ContactData entryContact) {
+    initContactModificationById(entryContact.getId());
+    String name = driver.findElement(By.name("firstname")).getAttribute("value");
+    String address = driver.findElement(By.name("address")).getAttribute("value");
+    String homePhone = driver.findElement(By.name("home")).getAttribute("value");
+    String mobilePhone = driver.findElement(By.name("mobile")).getAttribute("value");
+    String workPhone = driver.findElement(By.name("work")).getAttribute("value");
+    String email = driver.findElement(By.name("email")).getAttribute("value");
+    goToHomePage();
+    return new ContactData()
+            .withId(entryContact.getId()).withName(name).withAddress(address)
+            .withHomePhone(homePhone).withMobilePhone(mobilePhone).withWorkPhone(workPhone).withEmail(email);
   }
 }

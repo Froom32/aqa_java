@@ -4,21 +4,22 @@ import froom.my_java_code.models.ContactData;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.Comparator;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 
 public class ContactCreationTests extends TestBase {
 
-  @Test
+  @Test(enabled = true)
   public void testContactCreation() {
     app.getContactHelper().goToHomePage();
-    List<ContactData> before = app.getContactHelper().getContactList();
-    ContactData contactData = new ContactData("Mike Bilyk", "prospect Oleksandrovskiy, h.111, r.21", "+380952492290", "bilikmike@gmail.com", "Bears");
-    app.getContactHelper().createContact(contactData, true);
-    List<ContactData> after = app.getContactHelper().getContactList();
+    Set<ContactData> before = app.getContactHelper().getContactSet();
+    ContactData contact =
+            new ContactData().withName("Mike Bilyk").withAddress("prospect Oleksandrovskiy, h.111, r.21")
+                    .withMobilePhone("+380952492290").withEmail("bilikmike@gmail.com").withGroup("Bears");
+    app.getContactHelper().createContact(contact);
+    Set<ContactData> after = app.getContactHelper().getContactSet();
 
-    before.add(contactData);
+    before.add(contact.withId(after.stream().mapToInt(ContactData::getId).max().getAsInt()));
     Assert.assertEquals(new HashSet<Object>(before), new HashSet<Object>(after));
   }
 
